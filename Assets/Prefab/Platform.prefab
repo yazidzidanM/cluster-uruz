@@ -78,7 +78,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 989d84ed729d48c40947e88451b64616, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 579c005986b73014298331e70ab022f6, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -270,11 +270,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 145790779832329562, guid: a3a1036e136a8b84dbe2ae866d596a3f, type: 3}
       propertyPath: m_LocalScale.x
-      value: 1.0436766
+      value: 0.99507666
       objectReference: {fileID: 0}
     - target: {fileID: 145790779832329562, guid: a3a1036e136a8b84dbe2ae866d596a3f, type: 3}
       propertyPath: m_LocalScale.y
-      value: 1.2166549
+      value: 1.16
+      objectReference: {fileID: 0}
+    - target: {fileID: 145790779832329562, guid: a3a1036e136a8b84dbe2ae866d596a3f, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.9534339
       objectReference: {fileID: 0}
     - target: {fileID: 145790779832329562, guid: a3a1036e136a8b84dbe2ae866d596a3f, type: 3}
       propertyPath: m_LocalPosition.x
@@ -316,6 +320,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1704681839246314964, guid: a3a1036e136a8b84dbe2ae866d596a3f, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 579c005986b73014298331e70ab022f6, type: 3}
     - target: {fileID: 4005806447171977898, guid: a3a1036e136a8b84dbe2ae866d596a3f, type: 3}
       propertyPath: m_Name
       value: Outline
