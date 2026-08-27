@@ -165,7 +165,7 @@ MonoBehaviour:
   fallSpeed: 2
   rb: {fileID: 7010264489263251060}
   audioSource: {fileID: 5658080933828180478}
-  collideSound: {fileID: 8300000, guid: 6969250f1deb3d4419b7d4829ace8e0d, type: 3}
+  collideSound: {fileID: 8300000, guid: 7ce28645420f40243bbe82e4414c1c31, type: 3}
 --- !u!82 &5658080933828180478
 AudioSource:
   m_ObjectHideFlags: 0
@@ -176,7 +176,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: dce1ff28d9d2669429d12a7be1c0d589, type: 3}
+  m_audioClip: {fileID: 8300000, guid: 7ce28645420f40243bbe82e4414c1c31, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
