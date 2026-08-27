@@ -1,1 +1,0 @@
-bikin dari awal ges
