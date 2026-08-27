@@ -14,6 +14,7 @@ public class CameraFollow : MonoBehaviour
 
     [Header("Scoring")]
     public float scorePerUnitY = 10f;
+    public int scoreMultiplier = 1;
 
     private float lastTargetY;
     private int score;

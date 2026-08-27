@@ -10,7 +10,8 @@ public class Meteor : MonoBehaviour
     [Header("Meteor Audio")]
     public AudioSource audioSource;
     public AudioClip collideSound;
-    
+
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -19,13 +20,14 @@ public class Meteor : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
+        Debug.Log("meteor: collide");
         if (!other.CompareTag("Player"))
             return;
 
         GameManager gm = FindObjectOfType<GameManager>();
         if (gm != null)
             gm.Die();
-            GameManager.GameIsOver = true;
+        GameManager.GameIsOver = true;
 
         audioSource.PlayOneShot(collideSound);
         Destroy(gameObject);
