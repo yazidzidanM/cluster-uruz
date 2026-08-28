@@ -14,8 +14,7 @@ public class Meteor : MonoBehaviour
 
     void Start()
     {
-        rb = GetComponent<Rigidbody2D>();
-        rb.velocity = Vector2.down * 10f;
+
     }
 
     private void OnTriggerEnter2D(Collider2D other)
