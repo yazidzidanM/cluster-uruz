@@ -5,11 +5,7 @@ public class MovingPatrol : MonoBehaviour
 {
     private float speed;
     private float distance;
-
     private float startX;
-
-    // -1 = kiri
-    //  1 = kanan
     private int direction = -1;
 
     public void Setup(
@@ -30,17 +26,12 @@ public class MovingPatrol : MonoBehaviour
 
     void Update()
     {
-        // Gerak HANYA horizontal
         transform.position +=
             Vector3.right * direction * speed * Time.deltaTime;
 
-
-        // Hitung jarak horizontal
         float distanceMoved =
             Mathf.Abs(transform.position.x - startX);
 
-
-        // Sampai batas patrol
         if (distanceMoved >= distance)
         {
             direction *= -1;
