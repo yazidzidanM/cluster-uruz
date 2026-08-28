@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -6,78 +5,176 @@ using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour
 {
     public static bool GameIsOver;
+
     [Header("References")]
-    public GameObject platformPrefab;
+    public GameObject batangPrefab;
+    public Transform player;
+    public Transform treeSystem;
     public GameObject loseUi;
-    [Header("Jumlah Platform")]
-    public int platformCount = 1000;
-    [Header("Audio Sources")]
+
+    [Header("Pengaturan Batang")]
+    [Tooltip("Offset Y awal jika ingin posisi awal sedikit lebih naik/turun dari player")]
+    public float playerYOffset = 0f;
+
+    [Tooltip("Panjang/Tinggi vertikal 1 prefab batang (Misal: 10 unit)")]
+    public float jarakAntarBatang = 10f;
+
+    [Tooltip("Seberapa tinggi batang harus disiapkan di atas posisi tertinggi player")]
+    public float bufferDistanceAhead = 20f;
+
+    [Tooltip("Jarak di bawah player untuk menghancurkan batang tua")]
+    public float destroyDistance = 15f;
+
+    private float highestPlayerY;
+    private List<GameObject> batangAktif = new List<GameObject>();
+
+    [Header("Audio")]
     public AudioSource audioSource;
     public AudioSource bgm;
     public AudioClip loseSound;
-    
-    void Start()
-    {
-        loseUi.SetActive(false);
-        Vector3 spawnPosition = new Vector3();
 
-        for (int i = 0; i < platformCount; i++)
+    private void Start()
+    {
+        Time.timeScale = 1f;
+        GameIsOver = false;
+
+        if (loseUi != null)
+            loseUi.SetActive(false);
+
+        // Track posisi Y player pertama kali
+        if (player != null)
         {
-            spawnPosition.y += Random.Range(2f, 2.5f);
-            spawnPosition.x = Random.Range(-5f, 5f);
-            Instantiate(platformPrefab, spawnPosition, Quaternion.identity);
+            highestPlayerY = player.position.y;
         }
+
+        // Spawn batang pertama tepat di posisi player
+        float startY = highestPlayerY + playerYOffset;
+        SpawnBatang(startY);
+
+        // Panggil pemicu awal agar batang langsung di-generate beberapa meter ke atas!
+        CheckSpawnBatang();
     }
 
     private void Update()
     {
-        if (GameIsOver == true)
+        if (GameIsOver)
+            return;
+
+        UpdateHighestPlayerY();
+        CheckSpawnBatang();
+        CheckDestroyBatang();
+    }
+
+    private void UpdateHighestPlayerY()
+    {
+        if (player == null)
+            return;
+
+        // Selalu catat posisi Y tertinggi yang pernah dicapai player
+        if (player.position.y > highestPlayerY)
         {
-            bgm.Pause();
-            audioSource.PlayOneShot(loseSound);
+            highestPlayerY = player.position.y;
+        }
+    }
+
+    private void CheckSpawnBatang()
+    {
+        if (player == null || batangAktif.Count == 0)
+            return;
+
+        // Gunakan WHILE loop:
+        // Selama ujung batang teratas belum melebih jarak buffer (misal: 20 unit di atas player),
+        // terus generate batang baru di atasnya!
+        while (true)
+        {
+            GameObject batangTeratas = batangAktif[batangAktif.Count - 1];
+            float ujungBatangTeratasY = batangTeratas.transform.position.y + jarakAntarBatang;
+
+            // Jika tinggi batang teratas sudah melebihi (highestPlayerY + bufferDistanceAhead), stop loop
+            if (ujungBatangTeratasY >= highestPlayerY + bufferDistanceAhead)
+            {
+                break;
+            }
+
+            // Spawn batang berikutnya persis di ujung atas batang teratas
+            SpawnBatang(ujungBatangTeratasY);
+        }
+    }
+
+    private void SpawnBatang(float worldY)
+    {
+        float spawnX = (treeSystem != null) ? treeSystem.position.x : 0f;
+        Vector3 spawnWorldPos = new Vector3(spawnX, worldY, 0f);
+
+        GameObject newBatang = Instantiate(batangPrefab, spawnWorldPos, Quaternion.identity);
+
+        if (treeSystem != null)
+        {
+            newBatang.transform.SetParent(treeSystem, true);
         }
 
-        if (GameIsOver == false)
+        batangAktif.Add(newBatang);
+
+        // Generate cabang-cabang otomatis di batang baru
+        BranchSpawner branchSpawner = newBatang.GetComponent<BranchSpawner>();
+        if (branchSpawner != null)
         {
-            bgm.UnPause();
+            branchSpawner.GenerateBranches();
         }
     }
 
-    private System.Collections.IEnumerator Restart()
+    private void CheckDestroyBatang()
     {
-        
-        Debug.Log("Button clicked! Waiting 1 seconds...");
-        yield return new WaitForSeconds(1f);
-        
-    }
-    private System.Collections.IEnumerator BackToMainMenu()
-    {
-        
-        Debug.Log("Button clicked! Waiting 1 seconds...");
-        yield return new WaitForSeconds(1f);
-        
-    }
+        if (batangAktif.Count == 0)
+            return;
 
-    public void RestartLevel() 
-    {
-        Time.timeScale = 1f;
-        SceneManager.LoadScene("GamePlay");
-        bgm.Play();
-        GameIsOver = false;
-    }
+        for (int i = batangAktif.Count - 1; i >= 0; i--)
+        {
+            GameObject batang = batangAktif[i];
 
-    public void BackToMainMenuButton()
-    {
-        Time.timeScale = 1f;
-        SceneManager.LoadScene(0);
+            if (batang == null)
+            {
+                batangAktif.RemoveAt(i);
+                continue;
+            }
+
+            // Hapus jika ujung atas batang sudah tertinggal di bawah player
+            if (batang.transform.position.y + jarakAntarBatang < highestPlayerY - destroyDistance)
+            {
+                Destroy(batang);
+                batangAktif.RemoveAt(i);
+            }
+        }
     }
 
     public void Die()
     {
         GameIsOver = true;
-        loseUi.SetActive(true);
-        Time.timeScale = 0f; // Pause the game
-        
+
+        if (loseUi != null)
+            loseUi.SetActive(true);
+
+        if (bgm != null)
+            bgm.Pause();
+
+        if (audioSource != null && loseSound != null)
+            audioSource.PlayOneShot(loseSound);
+
+        Time.timeScale = 0f;
+    }
+
+    public void RestartLevel()
+    {
+        Time.timeScale = 1f;
+        GameIsOver = false;
+
+        SceneManager.LoadScene("GamePlay");
+    }
+
+    public void BackToMainMenuButton()
+    {
+        Time.timeScale = 1f;
+
+        SceneManager.LoadScene(0);
     }
 }
-
