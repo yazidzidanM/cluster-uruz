@@ -18,7 +18,7 @@ public class MeteorSpawn : MonoBehaviour
 
     [Header("Patrol Settings")]
     public float moveSpeed = 5f;
-    public float patrolDistance = 15f;
+    public float patrolDistance = 25f;
 
     private Camera cam;
 
