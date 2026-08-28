@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -6,78 +5,179 @@ using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour
 {
     public static bool GameIsOver;
+
     [Header("References")]
-    public GameObject platformPrefab;
+    public GameObject batangPrefab;
+    public Transform player;
+    public Transform treeSystem;
     public GameObject loseUi;
-    [Header("Jumlah Platform")]
-    public int platformCount = 1000;
-    [Header("Audio Sources")]
+
+    [Header("Pengaturan Batang")]
+    [Tooltip("Posisi Y tempat batang pertama muncul")]
+    public float firstBatangY = 0f;
+
+    [Tooltip("Jarak vertikal antar batang")]
+    public float jarakAntarBatang = 10f;
+
+    [Tooltip("Berapa unit sebelum ujung batang berikutnya, batang baru dibuat")]
+    public float spawnTriggerDistance = 8f;
+
+    [Tooltip("Batang yang lebih rendah dari player sejauh ini akan dihancurkan")]
+    public float destroyDistance = 15f;
+
+    private float nextBatangY;
+    private float highestPlayerY;
+
+    private float batangX;
+
+    private List<GameObject> batangAktif = new List<GameObject>();
+
+    [Header("Audio")]
     public AudioSource audioSource;
     public AudioSource bgm;
     public AudioClip loseSound;
-    
-    void Start()
-    {
-        loseUi.SetActive(false);
-        Vector3 spawnPosition = new Vector3();
 
-        for (int i = 0; i < platformCount; i++)
-        {
-            spawnPosition.y += Random.Range(2f, 2.5f);
-            spawnPosition.x = Random.Range(-5f, 5f);
-            Instantiate(platformPrefab, spawnPosition, Quaternion.identity);
-        }
+    private void Start()
+    {
+        Time.timeScale = 1f;
+        GameIsOver = false;
+
+        if (loseUi != null)
+            loseUi.SetActive(false);
+
+        if (player != null)
+            highestPlayerY = player.position.y;
+
+        SpawnBatang(firstBatangY);
+
+        nextBatangY = firstBatangY + jarakAntarBatang;
     }
 
     private void Update()
     {
-        if (GameIsOver == true)
+        if (GameIsOver)
+            return;
+
+        UpdateHighestPlayerY();
+
+        CheckSpawnBatang();
+
+        CheckDestroyBatang();
+    }
+
+    private void UpdateHighestPlayerY()
+    {
+        if (player == null)
+            return;
+
+        if (player.position.y > highestPlayerY)
         {
-            bgm.Pause();
-            audioSource.PlayOneShot(loseSound);
+            highestPlayerY = player.position.y;
+        }
+    }
+
+    private void CheckSpawnBatang()
+    {
+        if (player == null)
+            return;
+
+        if (highestPlayerY + spawnTriggerDistance >= nextBatangY)
+        {
+            SpawnBatang(nextBatangY);
+
+            nextBatangY += jarakAntarBatang;
+        }
+    }
+
+    private void SpawnBatang(float y)
+    {
+        Vector3 spawnPosition = new Vector3(
+            batangX,
+            y,
+            0f
+        );
+
+        GameObject newBatang = Instantiate(
+            batangPrefab,
+            spawnPosition,
+            Quaternion.identity,
+            treeSystem
+        );
+
+        batangAktif.Add(newBatang);
+
+        BranchSpawner branchSpawner =
+            newBatang.GetComponent<BranchSpawner>();
+
+        if (branchSpawner != null)
+        {
+            branchSpawner.GenerateBranches();
+        }
+        else
+        {
+            Debug.LogWarning(
+                "Batang tidak memiliki component BranchSpawner!"
+            );
         }
 
-        if (GameIsOver == false)
+        if (batangAktif.Count == 1)
         {
-            bgm.UnPause();
+            batangX = newBatang.transform.position.x;
         }
     }
 
-    private System.Collections.IEnumerator Restart()
+    private void CheckDestroyBatang()
     {
-        
-        Debug.Log("Button clicked! Waiting 1 seconds...");
-        yield return new WaitForSeconds(1f);
-        
-    }
-    private System.Collections.IEnumerator BackToMainMenu()
-    {
-        
-        Debug.Log("Button clicked! Waiting 1 seconds...");
-        yield return new WaitForSeconds(1f);
-        
-    }
+        if (batangAktif.Count == 0)
+            return;
 
-    public void RestartLevel() 
-    {
-        Time.timeScale = 1f;
-        SceneManager.LoadScene("GamePlay");
-        bgm.Play();
-        GameIsOver = false;
-    }
+        for (int i = batangAktif.Count - 1; i >= 0; i--)
+        {
+            GameObject batang = batangAktif[i];
 
-    public void BackToMainMenuButton()
-    {
-        Time.timeScale = 1f;
-        SceneManager.LoadScene(0);
+            if (batang == null)
+            {
+                batangAktif.RemoveAt(i);
+                continue;
+            }
+
+            if (batang.transform.position.y <
+                highestPlayerY - destroyDistance)
+            {
+                Destroy(batang);
+                batangAktif.RemoveAt(i);
+            }
+        }
     }
 
     public void Die()
     {
         GameIsOver = true;
-        loseUi.SetActive(true);
-        Time.timeScale = 0f; // Pause the game
-        
+
+        if (loseUi != null)
+            loseUi.SetActive(true);
+
+        if (bgm != null)
+            bgm.Pause();
+
+        if (audioSource != null && loseSound != null)
+            audioSource.PlayOneShot(loseSound);
+
+        Time.timeScale = 0f;
+    }
+
+    public void RestartLevel()
+    {
+        Time.timeScale = 1f;
+        GameIsOver = false;
+
+        SceneManager.LoadScene("GamePlay");
+    }
+
+    public void BackToMainMenuButton()
+    {
+        Time.timeScale = 1f;
+
+        SceneManager.LoadScene(0);
     }
 }
-

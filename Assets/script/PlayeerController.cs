@@ -8,16 +8,22 @@ public class PlayeerController : MonoBehaviour
     public Rigidbody2D rb;
 
     private float moveX;
-    // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
     }
 
-    // Update is called once per frame
     void Update()
     {
         moveX = Input.GetAxis("Horizontal") * moveSpeed;
+        if (moveX > 0)
+        {
+            transform.rotation = Quaternion.Euler(0, 180, 0);
+        }
+        else if (moveX < 0)
+        {
+            transform.rotation = Quaternion.Euler(0, 0, 0);
+        }
     }
 
     void FixedUpdate()
