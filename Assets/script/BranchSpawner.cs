@@ -34,7 +34,7 @@ public class BranchSpawner: MonoBehaviour
             bool spawnOnRight = Random.value > 0.5f;
 
             // Posisikan tepat di tengah (X = 0) pada tinggi Y saat ini
-            Vector3 localPosition = new Vector3(0f, currentY, 0f);
+            Vector3 localPosition = new Vector3(transform.position.x - 1.2f, currentY, 0f);
 
             // Spawn cabang
             GameObject newBranch = Instantiate(branchPrefab, transform);
