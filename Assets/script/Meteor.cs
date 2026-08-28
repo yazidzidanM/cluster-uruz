@@ -19,7 +19,7 @@ public class Meteor : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        Debug.Log("meteor: collide");
+        Debug.Log("bird: collide");
         if (!other.CompareTag("Player"))
             return;
 

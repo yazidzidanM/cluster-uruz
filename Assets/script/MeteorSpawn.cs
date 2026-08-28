@@ -12,7 +12,7 @@ public class MeteorSpawn : MonoBehaviour
     public Transform cameraFollow;
 
     [Header("Spawn Settings")]
-    public float spawnInterval = 6f;
+    public float spawnInterval = 8f;
     public float spawnOffsetY = 3f;
     public float spawnOffsetOutsideFrame = 2f;
 
@@ -50,29 +50,15 @@ public class MeteorSpawn : MonoBehaviour
         if (meteorPrefab == null || cam == null)
             return;
 
-        // Ukuran kamera
         float halfHeight = cam.orthographicSize;
         float halfWidth = halfHeight * cam.aspect;
 
-        // ==============================
-        // POSISI X
-        // ==============================
-
-        // Spawn dari kanan, sedikit di luar layar
         float rightX = cam.transform.position.x + halfWidth;
         float spawnX = rightX + spawnOffsetOutsideFrame;
 
-
-        // ==============================
-        // POSISI Y
-        // ==============================
-
-        // Batas ATAS kamera
         float topY = cam.transform.position.y + halfHeight;
 
-        // Spawn beberapa unit DI ATAS kamera
         float spawnY = topY + spawnOffsetY;
-
 
         Vector3 spawnPosition = new Vector3(
             spawnX,
@@ -80,21 +66,11 @@ public class MeteorSpawn : MonoBehaviour
             0f
         );
 
-
-        // ==============================
-        // SPAWN OBJECT
-        // ==============================
-
         GameObject newObj = Instantiate(
             meteorPrefab,
             spawnPosition,
             Quaternion.identity
         );
-
-
-        // ==============================
-        // MATIKAN GRAVITY
-        // ==============================
 
         Rigidbody2D rb = newObj.GetComponent<Rigidbody2D>();
 
@@ -103,23 +79,14 @@ public class MeteorSpawn : MonoBehaviour
             rb.gravityScale = 0f;
             rb.velocity = Vector2.zero;
             rb.angularVelocity = 0f;
-
-            // Sangat disarankan kalau gerakan dikontrol script
             rb.bodyType = RigidbodyType2D.Kinematic;
         }
-
-
-        // ==============================
-        // MOVING PATROL
-        // ==============================
 
         MovingPatrol patrol = newObj.GetComponent<MovingPatrol>();
 
         if (patrol == null)
             patrol = newObj.AddComponent<MovingPatrol>();
 
-
-        // Mulai bergerak ke kiri
         patrol.Setup(
             moveSpeed,
             patrolDistance,
