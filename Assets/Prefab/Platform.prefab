@@ -163,7 +163,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   jumpForce: 10
   audioSource: {fileID: 5102554666153952085}
-  collideSound: {fileID: 8300000, guid: b6e40c26e6c265b45a1211af552e231d, type: 3}
+  collideSound: {fileID: 8300000, guid: 9e5521746bcea9541bafd3c818bb0832, type: 3}
 --- !u!82 &5102554666153952085
 AudioSource:
   m_ObjectHideFlags: 0
