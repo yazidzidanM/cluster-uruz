@@ -13,23 +13,19 @@ public class GameManager : MonoBehaviour
     public GameObject loseUi;
 
     [Header("Pengaturan Batang")]
-    [Tooltip("Posisi Y tempat batang pertama muncul")]
-    public float firstBatangY = 0f;
+    [Tooltip("Offset Y awal jika ingin posisi awal sedikit lebih naik/turun dari player")]
+    public float playerYOffset = 0f;
 
-    [Tooltip("Jarak vertikal antar batang")]
+    [Tooltip("Panjang/Tinggi vertikal 1 prefab batang (Misal: 10 unit)")]
     public float jarakAntarBatang = 10f;
 
-    [Tooltip("Berapa unit sebelum ujung batang berikutnya, batang baru dibuat")]
-    public float spawnTriggerDistance = 8f;
+    [Tooltip("Seberapa tinggi batang harus disiapkan di atas posisi tertinggi player")]
+    public float bufferDistanceAhead = 20f;
 
-    [Tooltip("Batang yang lebih rendah dari player sejauh ini akan dihancurkan")]
+    [Tooltip("Jarak di bawah player untuk menghancurkan batang tua")]
     public float destroyDistance = 15f;
 
-    private float nextBatangY;
     private float highestPlayerY;
-
-    private float batangX;
-
     private List<GameObject> batangAktif = new List<GameObject>();
 
     [Header("Audio")]
@@ -45,12 +41,18 @@ public class GameManager : MonoBehaviour
         if (loseUi != null)
             loseUi.SetActive(false);
 
+        // Track posisi Y player pertama kali
         if (player != null)
+        {
             highestPlayerY = player.position.y;
+        }
 
-        SpawnBatang(firstBatangY);
+        // Spawn batang pertama tepat di posisi player
+        float startY = highestPlayerY + playerYOffset;
+        SpawnBatang(startY);
 
-        nextBatangY = firstBatangY + jarakAntarBatang;
+        // Panggil pemicu awal agar batang langsung di-generate beberapa meter ke atas!
+        CheckSpawnBatang();
     }
 
     private void Update()
@@ -59,9 +61,7 @@ public class GameManager : MonoBehaviour
             return;
 
         UpdateHighestPlayerY();
-
         CheckSpawnBatang();
-
         CheckDestroyBatang();
     }
 
@@ -70,6 +70,7 @@ public class GameManager : MonoBehaviour
         if (player == null)
             return;
 
+        // Selalu catat posisi Y tertinggi yang pernah dicapai player
         if (player.position.y > highestPlayerY)
         {
             highestPlayerY = player.position.y;
@@ -78,51 +79,47 @@ public class GameManager : MonoBehaviour
 
     private void CheckSpawnBatang()
     {
-        if (player == null)
+        if (player == null || batangAktif.Count == 0)
             return;
 
-        if (highestPlayerY + spawnTriggerDistance >= nextBatangY)
+        // Gunakan WHILE loop:
+        // Selama ujung batang teratas belum melebih jarak buffer (misal: 20 unit di atas player),
+        // terus generate batang baru di atasnya!
+        while (true)
         {
-            SpawnBatang(nextBatangY);
+            GameObject batangTeratas = batangAktif[batangAktif.Count - 1];
+            float ujungBatangTeratasY = batangTeratas.transform.position.y + jarakAntarBatang;
 
-            nextBatangY += jarakAntarBatang;
+            // Jika tinggi batang teratas sudah melebihi (highestPlayerY + bufferDistanceAhead), stop loop
+            if (ujungBatangTeratasY >= highestPlayerY + bufferDistanceAhead)
+            {
+                break;
+            }
+
+            // Spawn batang berikutnya persis di ujung atas batang teratas
+            SpawnBatang(ujungBatangTeratasY);
         }
     }
 
-    private void SpawnBatang(float y)
+    private void SpawnBatang(float worldY)
     {
-        Vector3 spawnPosition = new Vector3(
-            batangX,
-            y,
-            0f
-        );
+        float spawnX = (treeSystem != null) ? treeSystem.position.x : 0f;
+        Vector3 spawnWorldPos = new Vector3(spawnX, worldY, 0f);
 
-        GameObject newBatang = Instantiate(
-            batangPrefab,
-            spawnPosition,
-            Quaternion.identity,
-            treeSystem
-        );
+        GameObject newBatang = Instantiate(batangPrefab, spawnWorldPos, Quaternion.identity);
+
+        if (treeSystem != null)
+        {
+            newBatang.transform.SetParent(treeSystem, true);
+        }
 
         batangAktif.Add(newBatang);
 
-        BranchSpawner branchSpawner =
-            newBatang.GetComponent<BranchSpawner>();
-
+        // Generate cabang-cabang otomatis di batang baru
+        BranchSpawner branchSpawner = newBatang.GetComponent<BranchSpawner>();
         if (branchSpawner != null)
         {
             branchSpawner.GenerateBranches();
-        }
-        else
-        {
-            Debug.LogWarning(
-                "Batang tidak memiliki component BranchSpawner!"
-            );
-        }
-
-        if (batangAktif.Count == 1)
-        {
-            batangX = newBatang.transform.position.x;
         }
     }
 
@@ -141,8 +138,8 @@ public class GameManager : MonoBehaviour
                 continue;
             }
 
-            if (batang.transform.position.y <
-                highestPlayerY - destroyDistance)
+            // Hapus jika ujung atas batang sudah tertinggal di bawah player
+            if (batang.transform.position.y + jarakAntarBatang < highestPlayerY - destroyDistance)
             {
                 Destroy(batang);
                 batangAktif.RemoveAt(i);

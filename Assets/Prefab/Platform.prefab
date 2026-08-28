@@ -78,7 +78,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 579c005986b73014298331e70ab022f6, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 8959861159093c948aa12f945fd0e47a, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -124,8 +124,8 @@ EdgeCollider2D:
   m_Offset: {x: 0, y: 0}
   m_EdgeRadius: 0
   m_Points:
-  - {x: -4.7088375, y: -0.1840572}
-  - {x: 4.9141283, y: -0.08413032}
+  - {x: 0.06167507, y: -1.4982579}
+  - {x: 11.677031, y: 1.3207042}
   m_AdjacentStartPoint: {x: 0, y: 0}
   m_AdjacentEndPoint: {x: 0, y: 0}
   m_UseAdjacentStartPoint: 0
@@ -323,7 +323,7 @@ PrefabInstance:
     - target: {fileID: 1704681839246314964, guid: a3a1036e136a8b84dbe2ae866d596a3f, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 21300000, guid: 579c005986b73014298331e70ab022f6, type: 3}
+      objectReference: {fileID: 21300000, guid: 8959861159093c948aa12f945fd0e47a, type: 3}
     - target: {fileID: 4005806447171977898, guid: a3a1036e136a8b84dbe2ae866d596a3f, type: 3}
       propertyPath: m_Name
       value: Outline
