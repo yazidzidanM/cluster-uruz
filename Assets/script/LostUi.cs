@@ -1,55 +1,63 @@
-using System.Collections;
-using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using TMPro;
 
 public class LostUi : MonoBehaviour
 {
-
     public CameraFollow CameraFollowScript;
+
     public TextMeshProUGUI currentScoreText;
     public TextMeshProUGUI HighScoreText;
 
     public int score;
     public int HighScore;
 
-    void Start()
-    {
-        if (currentScoreText != null)
-        {
-            string teksMentah = currentScoreText.text; 
-            Debug.Log("Isi teks lengkap: " + teksMentah); 
-        }
-        if (currentScoreText != null)
-        {
-            string teksLengkap = currentScoreText.text;
-            Debug.Log("Teks Lengkap: " + teksLengkap); // Output: "Current Score   :   10"
+    private string savePath;
 
-            // 2. Mengambil angka "10" saja dan mengubahnya menjadi tipe data int (angka)
-            int nilaiAngka = AmbilAngkaSaja(teksLengkap);
-            Debug.Log("Angka Skor yang Didapat: " + nilaiAngka); // Output: 10
-        }
+    [System.Serializable]
+    public class SaveData
+    {
+        public int highScore;
     }
 
-
-    public void Update()
+    void Start()
     {
-        if(CameraFollowScript != null)
+        // Lokasi file JSON
+        savePath = Application.persistentDataPath + "/saveData.json";
+
+        // Ambil high score lama
+        LoadHighScore();
+
+        // Update tampilan awal
+        PerbaruiHighScoreUI(HighScore);
+    }
+
+    void Update()
+    {
+        if (CameraFollowScript != null)
         {
             score = CameraFollowScript.score;
-            HighScore = CameraFollowScript.score;
         }
-        if(currentScoreText != null){
-            PerbaruiCurrentScoreUI(score);
 
-        }
-        if(HighScoreText != null)
+        // Current Score
+        if (currentScoreText != null)
         {
-            if(score > HighScore){
-                PerbaruiHighScoreUI(HighScore);
-            }else{
-                PerbaruiHighScoreUI(score);
-            }
+            PerbaruiCurrentScoreUI(score);
+        }
+
+        // Kalau score sekarang lebih tinggi dari highscore
+        if (score > HighScore)
+        {
+            HighScore = score;
+
+            PerbaruiHighScoreUI(HighScore);
+
+            // Simpan ke JSON
+            SaveHighScore();
+        }
+        else
+        {
+            PerbaruiHighScoreUI(HighScore);
         }
     }
 
@@ -60,6 +68,7 @@ public class LostUi : MonoBehaviour
             currentScoreText.text = "Current Score  :   " + skorBaru;
         }
     }
+
     public void PerbaruiHighScoreUI(int skorBaru)
     {
         if (HighScoreText != null)
@@ -68,14 +77,40 @@ public class LostUi : MonoBehaviour
         }
     }
 
-    private int AmbilAngkaSaja(string inputTeks)
+    public void SaveHighScore()
     {
-        string angkaSaja = System.Text.RegularExpressions.Regex.Match(inputTeks, @"\d+").Value;
-        
-        if (int.TryParse(angkaSaja, out int hasil))
+        SaveData data = new SaveData();
+
+        data.highScore = HighScore;
+
+        string json = JsonUtility.ToJson(data, true);
+
+        File.WriteAllText(savePath, json);
+
+        Debug.Log("High Score disimpan: " + HighScore);
+        Debug.Log("Lokasi Save: " + savePath);
+    }
+
+    public void LoadHighScore()
+    {
+        if (File.Exists(savePath))
         {
-            return hasil;
+            string json = File.ReadAllText(savePath);
+
+            SaveData data = JsonUtility.FromJson<SaveData>(json);
+
+            HighScore = data.highScore;
+
+            Debug.Log("High Score dimuat: " + HighScore);
         }
-        return 0;
+        else
+        {
+            HighScore = 0;
+
+            // Bikin file save pertama kali
+            SaveHighScore();
+
+            Debug.Log("Belum ada save. Membuat save baru.");
+        }
     }
 }
