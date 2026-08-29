@@ -17,13 +17,17 @@ public class CameraFollow : MonoBehaviour
     public int scoreMultiplier = 1;
 
     private float lastTargetY;
-    private int score;
+    public int score;
 
     private void Start()
     {
         if (target != null)
             lastTargetY = target.position.y;
         UpdateScoreUI();
+    }
+
+    private void Update(){
+        // Debug.Log(score);
     }
 
     private void LateUpdate()

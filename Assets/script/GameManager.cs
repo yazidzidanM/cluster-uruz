@@ -11,6 +11,7 @@ public class GameManager : MonoBehaviour
     public Transform player;
     public Transform treeSystem;
     public GameObject loseUi;
+    public int HighScore;
 
     [Header("Pengaturan Batang")]
     [Tooltip("Offset Y awal jika ingin posisi awal sedikit lebih naik/turun dari player")]
@@ -177,4 +178,19 @@ public class GameManager : MonoBehaviour
 
         SceneManager.LoadScene(0);
     }
+
+    public static GameManager Instance; 
+
+    private void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+
 }
