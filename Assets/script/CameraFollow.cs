@@ -39,7 +39,7 @@ public class CameraFollow : MonoBehaviour
         if (currentY > lastTargetY)
         {
             float deltaY = currentY - lastTargetY;
-            score += Mathf.FloorToInt(deltaY * scorePerUnitY);
+            score += Mathf.FloorToInt(deltaY * scorePerUnitY * scoreMultiplier);
             lastTargetY = currentY;
             UpdateScoreUI();
         }
