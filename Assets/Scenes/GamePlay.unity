@@ -1411,7 +1411,6 @@ MonoBehaviour:
   skor: {fileID: 1107698380}
   scorePerUnitY: 10
   scoreMultiplier: 1
-  score: 0
 --- !u!82 &519420034
 AudioSource:
   m_ObjectHideFlags: 0
@@ -2187,7 +2186,7 @@ MonoBehaviour:
   cameraFollow: {fileID: 0}
   buffDuration: 5
   scoreMultiplier: 2
-  backgroundRenderer: {fileID: 749330132}
+  backgroundRenderer: {fileID: 1585995905}
   redBackgroundSprite: {fileID: 21300000, guid: c573ad3465bd1ca468f10133386d4245, type: 3}
 --- !u!4 &811069628
 Transform:
@@ -2238,7 +2237,6 @@ MonoBehaviour:
   player: {fileID: 1325589242}
   treeSystem: {fileID: 1377667492}
   loseUi: {fileID: 361988041}
-  HighScore: 0
   playerYOffset: 0
   jarakAntarBatang: 30
   bufferDistanceAhead: 10
